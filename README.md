@@ -1,1 +1,34 @@
-Executive Summary The deployment of Agent Zero on a Google Pixel 9a running a rooted Kali NetHunter subsystem represents a fascinating and extreme edge-case architecture. By bypassing traditional desktop Docker requirements and leveraging an ARM64 chroot environment, this setup achieves a fully autonomous, pocket-sized AI agent. The integration of a "dual-brain" system—utilizing a local, air-gapped LLM for stealth operations and a cloud-proxied enterprise model for complex tasks—is a highly creative solution to the hardware and network constraints typical of mobile environments.This review provides a comprehensive technical assessment of the architecture, its feasibility, inherent risks, and potential areas for optimization.2. Architectural Analysis 2.1. Hardware & OS Foundation (ARM64 & Kali NetHunter)The choice of the Google Pixel 9a combined with Kali NetHunter provides a robust foundation for mobile •The Mobile Adaptation: By cloning the repository directly into the Kali chroot and installing dependencies via pip, this deployment successfully utilizes Agent Zero's legacy bare-metal execution path.•Trade-offs: While this eliminates the overhead of running Docker daemon on Android (which is notoriously difficult and resource-intensive), it removes the isolation layer. The agent operates directly within the Kali subsystem environment.2.3. The "Dual-Brain" LLM RoutingThe dual-brain approach is arguably the most elegant aspect of this deployment:•Stealth Mode (Ollama + Llama 3.2 1B): Running Ollama natively on ARM64 Linux allows for true offline execution [2]. While a 1B parameter model has limited reasoning capabilities, it is sufficient for basic bash command generation and parsing, ensuring the agent remains functional in air-gapped environments.•Beast Mode (OpenRouter Proxy): Leveraging OpenRouter's free tier to access models like stepfun/step-3.5-flash bypasses the severe hardware limitations of mobile devices. Using high-RPM, large-context (128k) models ensures stable JSON formatting and complex task execution without draining the mobile battery or hitting immediate rate limits [3].3. Security & Ethical ConsiderationsWhile technically impressive, granting an autonomous AI agent full root access to a mobile device's kernel introduces extreme security and operational risks.Risk CategoryDescriptionMitigation StrategySystem IntegrityWith root privileges, a hallucinating AI could execute destructive commands (e.g., rm -rf /, modifying boot partitions), potentially soft-bricking the Pixel 9a [4].Implement a restricted sudo configuration or a sandbox (like proot) to limit the AI's access to critical Android system directories.Network AbuseAutonomous execution of nmap or tcpdump over cellular networks can trigger carrier intrusion detection systems, leading to SIM bans or legal scrutiny [5].Restrict the agent's network interfaces, binding it exclusively to Wi-Fi (wlan0) or a VPN interface (tun0).Prompt InjectionIf the agent processes untrusted external data (e.g., reading a malicious webpage), indirect prompt injection could hijack the agent to execute arbitrary root commands [6].Employ strict output parsing and require manual user confirmation for highly destructive commands (e.g., file deletion, firewall changes). penetration testing and automation.•Chroot vs. Virtualization: Running Kali in a chroot environment on a rooted Android device allows the subsystem to share the Android Linux kernel. This grants the environment near-native execution speeds and direct access to hardware sensors and network interfaces, which is critical for tools like nmap and tcpdump.•ARM64 Compatibility: Historically, many AI and containerization tools were x86-centric. However, the modern Python ecosystem and Node.js (both required by Agent Zero) have excellent aarch64 support, making bare-metal execution highly viable.2.2. Bypassing Docker for Bare-Metal ExecutionAgent Zero's official architecture heavily relies on Docker to provide a secure, standardized runtime container [1].
+# Agent Zero Mobile: Kali NetHunter Edition
+
+> A fully autonomous agentic framework deployed natively on mobile edge hardware.
+
+**⚠️ Disclaimer & Credits:** *This is an unofficial mobile deployment architecture guide. All core Agent Zero code, concepts, and intellectual property belong to [frdel / agent0ai](https://github.com/agent0ai/agent-zero). This repository simply documents the environment bypasses required to run the framework natively on rooted Android devices.*
+
+**Agent Zero Mobile** is an extreme edge-case deployment. It bypasses the need for a desktop Docker host and runs natively on a rooted Google Pixel 9a using a Kali NetHunter (ARM64) subsystem. 
+
+This build features a **Dual-Brain Architecture**: seamlessly switch between a 100% offline, air-gapped local LLM for stealth operations, and a free enterprise-tier cloud proxy for heavy reconnaissance and complex coding tasks.
+
+---
+
+## 🔗 The Toolchain (Credits & Resources)
+This build relies on several open-source projects. Please refer to their official repositories for source code:
+* **Core Framework:** [Agent Zero](https://github.com/agent0ai/agent-zero)
+* **Linux Subsystem:** [Kali NetHunter](https://www.kali.org/docs/nethunter/)
+* **Root Access:** [Magisk](https://github.com/topjohnwu/Magisk)
+* **Terminal Emulator:** [Termux (F-Droid)](https://f-droid.org/en/packages/com.termux/)
+* **Patched NH Terminal:** [NH-Term Magisk Fix (Dylanmurzello)](https://github.com/Dylanmurzello/kali-nethunter-nhterm-magisk-fix)
+* **Cloud API Proxy:** [OpenRouter](https://openrouter.ai/)
+* **Local Offline AI:** [Ollama](https://ollama.com/)
+
+---
+
+## 🚀 Phase 1: The Hardware Foundation
+
+### 1. Rooting the Host Device
+Agent Zero requires a Debian-based Linux environment to execute terminal tools. To achieve native execution with full hardware permissions, the host Android device must be rooted.
+1. Enable Developer Options > OEM Unlocking. Reboot to fastboot (`fastboot flashing unlock`).
+2. Download the factory image for your device. Extract `init_boot.img` (or `boot.img`), transfer it to the phone, and patch it via the Magisk App.
+3. Flash the patched image back to your PC via fastboot:
+   ```bash
+   fastboot flash init_boot <magisk_patched_image.img>
+   fastboot reboot
