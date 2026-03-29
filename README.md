@@ -115,3 +115,33 @@ If you are running this edge-deployment on mobile, you will likely hit these arc
 **4. Error: `Permission Denied` when running nmap or tcpdump**
 * **Cause:** You are running the terminal as a standard Android user instead of root.
 * **Fix:** Ensure you start your NetHunter terminal as `root`. You can verify this by asking Agent Zero to run `whoami`.
+
+Cold start.
+
+# Open your NetHunter Terminal as root
+cd agent-zero
+
+# Launch the Agent Zero engine
+python3 main.py
+
+Then open your mobile browser and go to http://localhost:5000)
+
+​2. The Air-Gapped Boot (Local / Stealth Mode)
+​To run the local llama model completely offline, you actually have to run two processes. You have to turn on the Ollama AI server in the background, and then start Agent Zero.
+
+# Open your first NetHunter Terminal as root and start the AI server
+ollama serve
+
+# Swipe to open a SECOND NetHunter Terminal tab (leave the first one running)
+# Start the model to make sure it is loaded into your phone's memory
+ollama run llama3.2:1b
+
+# Press Ctrl+D to exit the model chat, then start Agent Zero
+cd agent-zero
+python3 main.py
+
+3. The One-Liner Ninja Boot (Advanced)
+​If you don't want to mess with two terminal tabs every time you want to go stealth mode, you can give them this hacker trick. It uses the & operator to push the Ollama server into the background so you can start Agent Zero in the exact same window. 
+
+# Start the AI server silently in the background, then boot Agent Zero
+ollama serve & cd agent-zero && python3 main.py
