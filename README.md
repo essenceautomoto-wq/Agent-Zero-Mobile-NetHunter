@@ -118,6 +118,8 @@ If you are running this edge-deployment on mobile, you will likely hit these arc
 
 ---
 
+---
+
 ## ⚙️ Day-to-Day Operations (Booting the System)
 
 ### 1. The Standard Boot (Cloud / Beast Mode)
@@ -129,30 +131,3 @@ cd agent-zero
 
 # Launch the Agent Zero engine
 python3 main.py
-```
-*(Then open your mobile browser and go to `http://localhost:5000`)*
-
-### 2. The Air-Gapped Boot (Local / Stealth Mode)
-To run the local model completely offline, you must turn on the Ollama AI server in the background first.
-
-```bash
-# Open your first NetHunter Terminal as root and start the AI server
-ollama serve
-```
-
-```bash
-# Swipe to open a SECOND NetHunter Terminal tab
-# Start the model to load it into memory
-ollama run llama3.2:1b
-
-# Press Ctrl+D to exit the model chat, then start Agent Zero
-cd agent-zero
-python3 main.py
-```
-
-### 3. The One-Liner Ninja Boot (Advanced)
-Start the AI server silently in the background and boot Agent Zero in the same window:
-
-```bash
-ollama serve > /dev/null 2>&1 & cd agent-zero && python3 main.py
-```
